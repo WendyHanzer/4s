@@ -32,8 +32,8 @@
 
 struct Vertex
 {
-    GLfloat position[3];
-    GLfloat color[3];
+	GLfloat position[3];
+	GLfloat color[3];
 };
 
 class Camera
@@ -59,12 +59,12 @@ public:
 	void updateProjection()
 	{
 		projection = glm::perspective(fieldOfView, aspectRatio, nearPlane, farPlane);	
-	}
+	} //updateProjection
 	
 	void project(const glm::mat4 model, glm::mat4& mvp)
 	{
 		mvp = projection*view*model;
-	};
+	} //project
 	
 	Camera()
 	{
@@ -79,14 +79,14 @@ public:
 		
 		updateView();
 		updateProjection();
-	}
-};
+	} //constructor
+}; //Camera
 
 class Model
 {
 public:
 	glm::mat4 model;
-};
+}; //Model
 
 void loadWidgets(tgui::Gui& gui, tgui::Gui& gui2, sf::RenderWindow& window);
 void loadGeometry(GLuint& vbo_geometry);
@@ -112,17 +112,17 @@ int main(int argc, char** argv)
 	GLenum status = glewInit();
 	if(status != GLEW_OK)
 	{
-	    std::cerr << "[F] GLEW NOT INITIALIZED: ";
-	    std::cerr << glewGetErrorString(status) << std::endl;
-	    
-	    window.close();
-	    
-	    return -1;
+		std::cerr << "[F] GLEW NOT INITIALIZED: ";
+		std::cerr << glewGetErrorString(status) << std::endl;
+	
+		window.close();
+	
+		return -1;
 	}
-    
-    /*
-    *	Create GUI
-    */
+
+	/*
+	*	Create GUI
+	*/
 	tgui::Gui gui(window);
 	tgui::Gui gui2(window);
 	gui.setGlobalFont("fonts/DejaVuSans.ttf");
@@ -159,10 +159,10 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 	glClearDepth(1.f);
-    
-    Camera camera;
+
+	Camera camera;
 	
-    sf::Event event;
+	sf::Event event;
 	tgui::Callback callback;
 	
 	Model model;
@@ -176,7 +176,8 @@ int main(int argc, char** argv)
 	//rotation is the object translating around the origin in a circle
 	float spinRate = M_PI;
 	float rotationRate = M_PI/2;
-    while (window.isOpen())
+	
+	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
 		{
@@ -229,6 +230,8 @@ int main(int argc, char** argv)
 						default:
 							break;
 					} //switch
+					
+					break;
 				default:
 					break;
 			} //switch
@@ -273,8 +276,8 @@ int main(int argc, char** argv)
 		window.display();
 	} //while
 
-    // Clean up after ourselves
-    cleanUp(vbo_geometry, window);
+// Clean up after ourselves
+cleanUp(vbo_geometry, window);
 	
 	return EXIT_SUCCESS;
 } //main
@@ -293,36 +296,36 @@ void quitCallback(const tgui::Callback& callback)
 void loadWidgets(tgui::Gui& gui, tgui::Gui& gui2, sf::RenderWindow& window)
 {
 	tgui::Picture::Ptr picture(gui2);
-    picture->load("images/xubuntu_bg_aluminium.jpg");
-    picture->setCallbackId(3);
-    
-    //would be nice to get below to work, but OpenGL covers it
-    //picture->bindCallbackEx(onBackClick, tgui::Picture::LeftMouseClicked);
+	picture->load("images/xubuntu_bg_aluminium.jpg");
+	picture->setCallbackId(3);
+
+	//would be nice to get below to work, but OpenGL covers it
+	//picture->bindCallbackEx(onBackClick, tgui::Picture::LeftMouseClicked);
 	
-    tgui::Label::Ptr instructions1(gui);
-    instructions1->setText("Use up and down arrow keys");
-    instructions1->setPosition(0, 0);
-    tgui::Label::Ptr instructions2(gui);
-    instructions2->setText("to control speed of spin");
-    instructions2->setPosition(0, 32);
+	tgui::Label::Ptr instructions1(gui);
+	instructions1->setText("Use up and down arrow keys");
+	instructions1->setPosition(0, 0);
+	tgui::Label::Ptr instructions2(gui);
+	instructions2->setText("to control speed of spin");
+	instructions2->setPosition(0, 32);
 
 	// Create check box for pausing
-    tgui::Checkbox::Ptr checkbox(gui);
-    checkbox->load("widgets/Black.conf");
-    checkbox->setPosition(window.getSize().x - 128, 30);
-    checkbox->setText("Paused");
-    checkbox->setSize(32, 32);
-    checkbox->setCallbackId(1);
-    checkbox->bindCallbackEx(pauseCallback, tgui::Checkbox::LeftMouseClicked);
-    
-    // Create the quit button
-    tgui::Button::Ptr quit(gui);
-    quit->load("widgets/Black.conf");
-    quit->setSize(128, 30);
-    quit->setPosition(window.getSize().x - 128, 0);
-    quit->setText("Quit");
-    quit->setCallbackId(2);
-    quit->bindCallbackEx(quitCallback, tgui::Button::LeftMouseClicked);
+	tgui::Checkbox::Ptr checkbox(gui);
+	checkbox->load("widgets/Black.conf");
+	checkbox->setPosition(window.getSize().x - 128, 30);
+	checkbox->setText("Paused");
+	checkbox->setSize(32, 32);
+	checkbox->setCallbackId(1);
+	checkbox->bindCallbackEx(pauseCallback, tgui::Checkbox::LeftMouseClicked);
+
+	// Create the quit button
+	tgui::Button::Ptr quit(gui);
+	quit->load("widgets/Black.conf");
+	quit->setSize(128, 30);
+	quit->setPosition(window.getSize().x - 128, 0);
+	quit->setText("Quit");
+	quit->setCallbackId(2);
+	quit->bindCallbackEx(quitCallback, tgui::Button::LeftMouseClicked);
 }
 
 void loadGeometry(GLuint& vbo_geometry)
@@ -330,75 +333,75 @@ void loadGeometry(GLuint& vbo_geometry)
 	/*
 	*	define a cube
 	*/
-	Vertex geometry[] = { {{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
-                          {{-1.0, -1.0, 1.0}, {0.0, 0.0, 1.0}},
-                          {{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
+	Vertex geometry[] = {	{{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
+							{{-1.0, -1.0, 1.0}, {0.0, 0.0, 1.0}},
+							{{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
 
-                          {{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
-                          {{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
-                          {{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
-                          
-                          {{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
-                          {{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
-                          {{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
-                          
-                          {{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
-                          {{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
-                          {{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
+							{{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
+							{{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
+							{{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
 
-                          {{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
-                          {{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
-                          {{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
+							{{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
+							{{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
+							{{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
 
-                          {{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
-                          {{-1.0, -1.0, 1.0}, {0.0, 0.0, 1.0}},
-                          {{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
+							{{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
+							{{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
+							{{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
 
-                          {{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
-                          {{-1.0, -1.0, 1.0}, {0.0, 0.0, 1.0}},
-                          {{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
-                          
-                          {{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
-                          {{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
-                          {{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
+							{{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
+							{{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
+							{{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
 
-                          {{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
-                          {{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
-                          {{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
+							{{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
+							{{-1.0, -1.0, 1.0}, {0.0, 0.0, 1.0}},
+							{{-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}},
 
-                          {{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
-                          {{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
-                          {{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
+							{{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
+							{{-1.0, -1.0, 1.0}, {0.0, 0.0, 1.0}},
+							{{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
 
-                          {{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
-                          {{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
-                          {{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
+							{{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
+							{{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
+							{{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
 
-                          {{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
-                          {{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
-                          {{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}}
-                        };
+							{{1.0, -1.0, -1.0}, {1.0, 0.0, 0.0}},
+							{{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
+							{{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}},
+
+							{{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
+							{{1.0, 1.0, -1.0}, {1.0, 1.0, 0.0}},
+							{{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
+
+							{{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
+							{{-1.0, 1.0, -1.0}, {0.0, 1.0, 0.0}},
+							{{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
+
+							{{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}},
+							{{-1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}},
+							{{1.0, -1.0, 1.0}, {1.0, 0.0, 1.0}}
+							};
 
 	/*
 	*	create vertex buffer object
 	*/
 	glGenBuffers(1, &vbo_geometry);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_geometry);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_geometry);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW);
 }
 
 void update(Model& model, const float rotationRate, const float translationRate, const float dt)
 {
-    static float angle = 0;
-    static float rotation = 0;
-    
-    if (!simPaused)
-    {
-		angle += dt*translationRate;
-		rotation += dt*rotationRate;
+	static float angle = 0;
+	static float rotation = 0;
+
+	if (!simPaused)
+	{
+			angle += dt*translationRate;
+			rotation += dt*rotationRate;
 	}
 	
-    model.model = glm::translate(glm::mat4(1.0f), glm::vec3(4*sin(angle), 0, 4*cos(angle)));
+	model.model = glm::translate(glm::mat4(1.0f), glm::vec3(4*sin(angle), 0, 4*cos(angle)));
 	model.model = glm::rotate(model.model, rotation, glm::vec3(0, 1, 0));
 }
 
@@ -406,35 +409,35 @@ void render(const Model& model, const Camera& camera, const Program& program)
 {
 	static glm::mat4 mvp;
 
-    //premultiply the matrix for this example
+	//premultiply the matrix for this example
 	mvp = camera.projection*camera.view*model.model;
 
-    //upload the matrix to the shader
-    glUniformMatrix4fv(program.location.mvpmat, 1, GL_FALSE, glm::value_ptr(mvp));
+	//upload the matrix to the shader
+	glUniformMatrix4fv(program.location.mvpmat, 1, GL_FALSE, glm::value_ptr(mvp));
 
-    //set pointers into the vbo for each of the attributes(position and color)
-    glVertexAttribPointer(program.location.position,//location of attribute
-                           3,//number of elements
-                           GL_FLOAT,//type
-                           GL_FALSE,//normalized?
-                           sizeof(Vertex),//stride
-                           0);//offset
+	//set pointers into the vbo for each of the attributes(position and color)
+	glVertexAttribPointer(	program.location.position,	//location of attribute
+							3,							//number of elements
+							GL_FLOAT,					//type
+							GL_FALSE,					//normalized?
+							sizeof(Vertex),				//stride
+							0);							//offset
 
-    glVertexAttribPointer( program.location.color,
-                           3,
-                           GL_FLOAT,
-                           GL_FALSE,
-                           sizeof(Vertex),
-                           (void*)offsetof(Vertex,color));
+	glVertexAttribPointer(	program.location.color,
+							3,
+							GL_FLOAT,
+							GL_FALSE,
+							sizeof(Vertex),
+							(void*)offsetof(Vertex,color));
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);//mode, starting index, count
+	glDrawArrays(GL_TRIANGLES, 0, 36); //mode, starting index, count
 }
 
 void cleanUp(GLuint& vbo_geometry, sf::RenderWindow& window)
 {
 	if (window.isOpen())
-    {
-    	window.close();
+	{
+		window.close();
 	} //if
 
 	glDeleteBuffers(1, &vbo_geometry);

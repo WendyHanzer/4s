@@ -119,7 +119,7 @@ private:
 	
 public:
 	GLuint vertexShader;
-    GLuint fragmentShader;
+	GLuint fragmentShader;
 	
 	bool loadVertexShaderFile(const char* filename)
 	{
@@ -173,8 +173,8 @@ public:
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &shader_status);
 		if(!shader_status)
 		{
-		    std::cerr << "[F] FAILED TO COMPILE VERTEX SHADER!" << std::endl;
-		    return false;
+			std::cerr << "[F] FAILED TO COMPILE VERTEX SHADER!" << std::endl;
+			return false;
 		}
 		
 		return true;
@@ -232,8 +232,8 @@ public:
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &shader_status);
 		if(!shader_status)
 		{
-		    std::cerr << "[F] FAILED TO COMPILE FRAGMENT SHADER!" << std::endl;
-		    return false;
+			std::cerr << "[F] FAILED TO COMPILE FRAGMENT SHADER!" << std::endl;
+			return false;
 		}
 		
 		return true;
@@ -252,7 +252,7 @@ public:
 	Shader()
 	{
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	} //Shader constructor
 };
 #undef SHADER__DEFAULT_VERTEX_SHADER_FILENAME
