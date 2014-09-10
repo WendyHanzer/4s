@@ -1,6 +1,7 @@
 # Linux
 CC=g++
-LIBS= -lglut -lGLEW -lGL
+LIBS= -lGL -lGLEW -ltgui -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+PROGRAM_NAME=Program
 
 # For Macs uncomment the next line and comment out the previous one
 #CC=clang++
@@ -8,12 +9,12 @@ LIBS= -lglut -lGLEW -lGL
 # Assuming you want to use a recent compiler
 
 # Compiler flags
-CXXFLAGS= -g -Wall -std=c++0x
+CXXFLAGS= -g -Wall -std=c++11
 
 all: ../bin/Matrix
 
-../bin/Matrix: ../src/main.cpp ../src/shader.h
-	$(CC) $(CXXFLAGS) ../src/main.cpp -o ../bin/Matrix $(LIBS)
+../bin/Matrix: ../src/main.cpp
+	$(CC) $(CXXFLAGS) ../src/main.cpp -o ../bin/$(PROGRAM_NAME) $(LIBS)
 	
 clean:
 	rm -rf *.o ../bin/$(PROGRAM_NAME)

@@ -1,0 +1,11 @@
+Read instructions in program
+
+This color cube will be rotating about the y-axis
+
+The program takes two optional arguments
+
+	Argument 1: vertex shader file name
+	Argument 2: fragment shader file name
+	
+If no arguments are supplied, the program will use the default filenames of vs and fs respectively. The two
+necessary files are provided under default names for convenience.
