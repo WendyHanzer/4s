@@ -20,7 +20,6 @@
 #include <list>
 #include <vector>
 #include <cstring>
-#include <queue>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -30,9 +29,7 @@
 
 #include "shader.h"
 #include "shaderProgram.h"
-#include "objLoader.h"
-
-using namespace std;
+#include "mesh.h"		//this is currently not used as it doesn't work yet
 
 /*
 *	rendering is a total mess, will clean it up more for next assignment
@@ -63,7 +60,7 @@ public:
 		projection = glm::perspective(fieldOfView, aspectRatio, nearPlane, farPlane);	
 	} //updateProjection
 	
-	void project(const glm::mat4 model, glm::mat4& mvp)
+	void project(const glm::mat4& model, glm::mat4& mvp)
 	{
 		mvp = projection*view*model;
 	} //project
@@ -90,15 +87,22 @@ public:
 	glm::vec3 scale;
 	GLuint vbo_geometry;
 	int triangles;
+	Mesh* mesh;
 	
 	Model()
 	{
 		vbo_geometry = 0;
+		mesh = 0;
 		triangles = 0;
 	} //constructor
 	
 	~Model()
 	{
+		if (mesh)
+		{
+			delete mesh;
+		} //if
+		
 		if (vbo_geometry)
 		{
 			glDeleteBuffers(1, &vbo_geometry);
@@ -119,30 +123,17 @@ public:
 	glm::mat4 position;
 	list<Planet*> moons;
 	
-	float rotationRate;
-	float translationRate;
-	float rotation;
-	float translation;
-	
 	Planet(Model* model)
 	{
 		this->model = model;
-	
-		rotation = 0;
-		translation = 0;
-		translationRate = M_PI/2;
-		rotationRate = M_PI;
 		
 		planets.push_back(this);
 	}
 }; //Planet
 
 void loadWidgets(tgui::Gui& gui, tgui::Gui& gui2, sf::RenderWindow& window);
-void loadGeometry(Model& model, const char* filename);
-void render(const Planet& planet, Camera& camera, ShaderProgram& program);
+void render(Planet& planet, Camera& camera, ShaderProgram& program);
 void guiDraw(sf::RenderWindow& window, tgui::Gui& gui);
-
-bool simPaused = false;
 
 void getArgs(int count, char** files, const char* extension, char** args)
 {
@@ -175,7 +166,7 @@ int main(int argc, char** argv)
 {
 	--argc;
 	++argv;
-	
+
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
@@ -197,6 +188,15 @@ int main(int argc, char** argv)
 	
 		return -1;
 	}
+	
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	//glFrontFace(GL_CW);
+   	//glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	glClearDepth(1.f);
+	glShadeModel(GL_SMOOTH);
 
 	/*
 	*	Create GUI
@@ -220,7 +220,11 @@ int main(int argc, char** argv)
 		exit(-1);
 	} //if
 	
-	loadGeometry(cube, args[0]);
+	cube.mesh = loadMesh(args[0]);
+	if (!cube.mesh)
+	{
+		exit(-1);
+	} //if
 	
 	getArgs(argc, argv, ".scale", args);
 	if (args[0])
@@ -233,7 +237,7 @@ int main(int argc, char** argv)
 	} //else
 	
 	/*
-	*	load shader
+	*	load shaders
 	*/
 	Shader vertexShader(GL_VERTEX_SHADER);
 	getArgs(argc, argv, ".vs", args);
@@ -254,13 +258,12 @@ int main(int argc, char** argv)
 	program.attachShader(fragmentShader);
 	program.linkProgram();
 	
-	program.attachShader(vertexShader);
-	program.attachShader(fragmentShader);
-	program.linkProgram();
+	program.addAttribute("vertexPosition_modelspace");
+	program.addAttribute("vertexUV");
+	//program.addAttribute("vertexNormal_modelspace");
 	
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-	glClearDepth(1.f);
+	program.addUniform("MVP");
+	program.addUniform("sampler");
 
 	Camera camera;
 	
@@ -272,6 +275,7 @@ int main(int argc, char** argv)
 	/*
 	*	main loop
 	*/
+	
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
@@ -285,19 +289,6 @@ int main(int argc, char** argv)
 				case sf::Event::Resized:
 					glViewport(0, 0, event.size.width, event.size.height);
 					camera.projection = glm::perspective(45.0f, float(event.size.width)/float(event.size.height), 0.01f, 100.0f);
-					
-					break;
-				case sf::Event::KeyPressed:
-					switch(event.key.code)
-					{
-						case sf::Keyboard::Escape:
-							window.close();
-							exit(0);
-							
-							break;
-						default:
-							break;
-					} //switch
 					
 					break;
 				default:
@@ -319,6 +310,8 @@ int main(int argc, char** argv)
 		/*
 		*	render OpenGL here
 		*/
+		//glValidateProgram(program.program);
+		
 		for (Planet* planet : planets)
 		{
 			render(*planet, camera, program);
@@ -350,7 +343,6 @@ void quitCallback(const tgui::Callback& callback)
 	exit(0);
 }
 
-
 void loadWidgets(tgui::Gui& gui, tgui::Gui& gui2, sf::RenderWindow& window)
 {
 	tgui::Picture::Ptr picture(gui2);
@@ -359,7 +351,7 @@ void loadWidgets(tgui::Gui& gui, tgui::Gui& gui2, sf::RenderWindow& window)
 
 	//would be nice to get below to work, but OpenGL covers it
 	//picture->bindCallbackEx(onBackClick, tgui::Picture::LeftMouseClicked);
-
+	
 	// Create the quit button
 	tgui::Button::Ptr quit(gui);
 	quit->load("widgets/Black.conf");
@@ -370,101 +362,7 @@ void loadWidgets(tgui::Gui& gui, tgui::Gui& gui2, sf::RenderWindow& window)
 	quit->bindCallbackEx(quitCallback, tgui::Button::LeftMouseClicked);
 }
 
-void loadGeometry(Model& model, const char* filename)
+void render(Planet& planet, Camera& camera, ShaderProgram& program)
 {
-	/*
-	*	define a cube
-	*/
-	//position, texture, color, normal
-	
-	Obj* obj = new Obj(filename);
-	
-	if (!obj->valid)
-	{
-		delete obj;
-		
-		return;
-	} //if
-	
-	/*
-	*	create vertex buffer object
-	*/
-	
-	/*
-	*	this creates 1 object
-	*
-	*	the handles are put into vbo_geometry
-	*/
-	glGenBuffers(1, &model.vbo_geometry);
-	
-	
-	/*
-	*	this states that the buffer is an array of verticies
-	*
-	*	GL_ELEMENT_ARRAY_BUFFER would state that the buffer contains elements of
-	*	verticies in another buffer
-	*
-	*	recall that vbo_geometry represents the buffer
-	*/
-	glBindBuffer(GL_ARRAY_BUFFER, model.vbo_geometry);
-	
-	/*
-	*	this will load the last buffer with an array using GL_STATIC_DRAW as the draw method
-	*/
-	glBufferData(GL_ARRAY_BUFFER, obj->vertices.size()*sizeof(Vertex), obj->vertices.data(), GL_STATIC_DRAW);
-	
-	model.triangles = obj->vertices.size();
-	
-	delete obj;
-}
-
-void render(const Planet& planet, Camera& camera, ShaderProgram& program)
-{
-	static glm::mat4 mvp;
-	
-	program.use();
-	
-	/*
-	*	shaders have various attributes for vertices
-	*	these functions will enable attributes for each vertex
-	*	if attributes are not enabled, they can't be accessed by the pipeline
-	*/
-	glEnableVertexAttribArray(0);
-	
-	/*
-	*	this sets target buffer to current active buffer!
-	*	buffers store vertices
-	*/
-	glBindBuffer(GL_ARRAY_BUFFER, planet.model->vbo_geometry);
-	
-	//premultiply the matrix for this example
-	camera.project(planet.position, mvp);
-
-	//upload the matrix to the shader
-	glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
-
-	/*
-	*	these calls state how to interpret data inside the buffer
-	*/
-	//set pointers into the vbo for each of the attributes(position and color)
-	//position, texture, color, normal
-	glVertexAttribPointer(	0,			//location of attribute
-							3,									//number of elements
-							GL_FLOAT,							//type
-							GL_FALSE,							//normalized?
-							sizeof(Vertex),						//stride
-							(void*)offsetof(Vertex,position));	//offset
-
-	glDrawArrays(GL_TRIANGLES, 0, planet.model->triangles); //mode, starting index, count
-	//broken
-	//model.mesh->render(program);
-	
-	//unload buffer
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
-	//disable shader program attributes
-	glDisableVertexAttribArray(0);
-	
-	//unload shader program
-	program.disable();
+	planet.model->mesh->render(program, camera.projection*camera.view*glm::scale(planet.position, planet.model->scale));
 }

@@ -60,10 +60,6 @@ struct Obj
 					{
 						case 0:
 							file >> vertex.position[0] >> vertex.position[1] >> vertex.position[2];
-							vertex.color[0] = 0;
-							vertex.color[1] = 0;
-							vertex.color[2] = 0;
-							vertex.color[3] = 1;
 							vertices.push_back(vertex);
 							
 							break;

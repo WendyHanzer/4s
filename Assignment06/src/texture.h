@@ -9,22 +9,24 @@
 
 struct Texture
 {
-public:
 	GLenum textureTarget;
 	GLuint textureObject;
+	
+public:
+	
 	
 	bool loaded;
 	
 	Texture(GLenum textureTarget, const char* filename)
 	{
+		Magick::Image* image;
+		Magick::Blob* blob;
+	
 		loaded = false;
 	
 		textureObject = -1;
-	
-		Magick::Image* image;
-		Magick::Blob blob;
 		
-		textureTarget = textureTarget;
+		this->textureTarget = textureTarget;
 		
 		cout << "Loading image: " << filename << endl;
 		
@@ -34,22 +36,28 @@ public:
 		} //try
 		catch (Magick::Error& exception)
 		{
-			image = NULL;
 			std::cerr << "[F] TEXTURE LOAD ERROR " << filename << ": " << exception.what() << std::endl;
 			return;
 		}
 		
-		image->write(&blob, "RGBA");
-
+		blob = new Magick::Blob();
+		image->magick("RGBA");
+		image->write(blob);
+		
 		glGenTextures(1, &textureObject);
+		
+		//glActiveTexture(GL_TEXTURE0);
 		glBindTexture(textureTarget, textureObject);
 		
-		glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(textureTarget, 0, GL_RGBA, image->columns(), image->rows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, blob->data());
 		
-		glTexImage2D(textureTarget, 0, GL_RGBA, image->columns(), image->rows(), 0, GL_RGBA, GL_UNSIGNED_BYTE, blob.data());
+		glTexParameteri(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		
+		glBindTexture(textureTarget, 0);
 		
 		delete image;
+		delete blob;
 		
 		loaded = true;
 	}
@@ -64,4 +72,10 @@ public:
 		glActiveTexture(textureUnit);
 		glBindTexture(textureTarget, textureObject);
 	} //bind
+	
+	void unbind(GLenum textureUnit)
+	{
+		glActiveTexture(textureUnit);
+		glBindTexture(textureTarget, 0);
+	} //unbind
 };
