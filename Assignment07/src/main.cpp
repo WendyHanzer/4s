@@ -1,9 +1,10 @@
-#include <iostream>
+#include "Engine.h"
 
-using namespace std;
-
-int main( int argv, char** argc )
+int main(int argv, char** argc)
 {
+	Engine engine;
+	engine.init();
+	engine.start();
 
 	return 0;
 } //main
