@@ -1,3 +1,3 @@
 Solar System
 
-Major work in progress
+Team: Aaron Solomon, Rui Wu, Eli Gabay
