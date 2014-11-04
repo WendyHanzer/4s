@@ -29,6 +29,10 @@
 #include "program.h"
 #include "mesh.h"		//this is currently not used as it doesn't work yet
 
+#include "Player/Player.h"
+#include "Player/Computer.h"
+#include "Player/Human.h"
+
 /*
 *	rendering is a total mess, will clean it up more for next assignment
 */

@@ -358,11 +358,10 @@ void loadWidgets(tgui::Gui& gui, tgui::Gui& gui2, sf::RenderWindow& window)
 	quit->setSize(128, 30);
 	quit->setPosition(window.getSize().x - 128, 0);
 	quit->setText("Quit");
-	quit->setCallbackId(2);
 	quit->bindCallbackEx(quitCallback, tgui::Button::LeftMouseClicked);
 }
 
 void render(Planet& planet, Camera& camera, ShaderProgram& program)
 {
-	planet.model->mesh->render(program, camera.projection*camera.view*glm::scale(planet.position, planet.model->scale));
+	planet.model->mesh->render(program, (camera.projection*camera.view)*glm::scale(planet.position, planet.model->scale));
 }
