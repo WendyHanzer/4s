@@ -67,24 +67,27 @@ out vec4 color;
 vec4 calcLightInternal(in BaseLight light, in vec3 lightDirection, in vec3 normal)
 {
 	vec4 ambientColor = vec4(light.color, 1.0f)*light.ambientIntensity;
-
-	float diffuseFactor = dot(normal, lightDirection);
-
+	
 	vec4 diffuseColor  = vec4(0, 0, 0, 0);
 	vec4 specularColor = vec4(0, 0, 0, 0);
-
-	if (diffuseFactor > 0.0f)
+	
+	if (light.diffuseIntensity > 0f)
 	{
-		diffuseColor = vec4(light.color, 1.0f)*light.diffuseIntensity*diffuseFactor;
-
-		vec3 lightReflect = normalize(reflect(-lightDirection, normal));
-		vec3 viewDirection = normalize(cameraPosition - fPosition);
-		float specularFactor = dot(lightReflect, viewDirection);
-		specularFactor = pow(specularFactor, materialShine);
-        
-		if (specularFactor > 0.0f)
+		float diffuseFactor = dot(normal, lightDirection);
+		
+		if (diffuseFactor > 0.0f)
 		{
-			specularColor = vec4(light.color, 1.0f)*specularFactor;
+			diffuseColor = vec4(light.color, 1.0f)*light.diffuseIntensity*diffuseFactor;
+
+			vec3 lightReflect = normalize(reflect(-lightDirection, normal));
+			vec3 viewDirection = normalize(cameraPosition - fPosition);
+			float specularFactor = dot(lightReflect, viewDirection);
+			specularFactor = pow(specularFactor, materialShine);
+		    
+			if (specularFactor > 0.0f)
+			{
+				specularColor = vec4(light.color, 1.0f)*specularFactor;
+			} //if
 		} //if
 	} //if
 	
